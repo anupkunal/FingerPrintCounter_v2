@@ -1,79 +1,117 @@
 const video = document.getElementById('video');
-const imageSrc = document.getElementById('imageSrc');
+const canvas = document.getElementById('workCanvas');
 const fileInput = document.getElementById('fileInput');
-const canvasOutput = document.getElementById('canvasOutput');
+const captureBtn = document.getElementById('captureBtn');
+const uploadBtn = document.getElementById('uploadBtn');
+const countBtn = document.getElementById('countBtn');
+const resetBtn = document.getElementById('resetBtn');
+const status = document.getElementById('status');
 const countResult = document.getElementById('count-result');
 
-let mode = 'camera';
-let isReady = false;
-
-// 1. Wait for OpenCV to load
+let videoTrack = null;
 var cv = window.cv || {};
-let timer = setInterval(() => {
+
+// 1. Initialize OpenCV and Camera
+let checkCv = setInterval(() => {
     if (cv.Mat) {
-        clearInterval(timer);
+        clearInterval(checkCv);
         document.getElementById('loading-overlay').style.display = 'none';
-        isReady = true;
+        startCamera();
     }
 }, 500);
 
-// --- Camera Setup ---
-document.getElementById('cameraBtn').onclick = () => {
-    if(!isReady) return;
-    mode = 'camera';
-    imageSrc.style.display = 'none';
-    video.style.display = 'block';
-    
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-        .then(stream => {
-            video.srcObject = stream;
-            video.oncanplay = () => processLoop();
-        })
-        .catch(err => alert("Camera blocked. Use HTTPS."));
-};
+function startCamera() {
+    navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: "environment", width: { ideal: 1280 } } 
+    })
+    .then(stream => {
+        video.srcObject = stream;
+        video.style.display = "block";
+        canvas.style.display = "none";
+        videoTrack = stream.getVideoTracks()[0];
+        status.innerText = "CAMERA ACTIVE";
+    })
+    .catch(err => {
+        status.innerText = "CAMERA ERROR: USE HTTPS";
+    });
+}
 
-// --- Upload Setup ---
-document.getElementById('uploadBtn').onclick = () => fileInput.click();
+// 2. FIXED UPLOAD LOGIC
+uploadBtn.onclick = () => fileInput.click();
+
 fileInput.onchange = (e) => {
-    mode = 'image';
-    const url = URL.createObjectURL(e.target.files[0]);
-    imageSrc.src = url;
-    imageSrc.onload = () => {
-        video.style.display = 'none';
-        imageSrc.style.display = 'block';
-        processFrame(imageSrc);
+    if (e.target.files.length === 0) return;
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+            const ctx = canvas.getContext('2d');
+            // Ensure canvas matches image size
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+            
+            // UI Switch
+            video.style.display = "none";
+            canvas.style.display = "block";
+            countBtn.disabled = false;
+            status.innerText = "IMAGE LOADED - READY TO COUNT";
+        };
+        img.src = event.target.result;
     };
+    reader.readAsDataURL(e.target.files[0]);
 };
 
-// --- Core Logic ---
-function processFrame(sourceElement) {
+// 3. CAPTURE LOGIC
+captureBtn.onclick = () => {
+    const ctx = canvas.getContext('2d');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0);
+    
+    video.style.display = "none";
+    canvas.style.display = "block";
+    countBtn.disabled = false;
+    status.innerText = "CAPTURED - READY TO COUNT";
+};
+
+// 4. MAIN AI SCANNER
+countBtn.onclick = () => {
+    status.innerText = "SCANNING RIDGES...";
+    
     try {
-        let src = cv.imread(sourceElement);
+        // Create Matrices
+        let src = cv.imread(canvas);
         let dst = new cv.Mat();
         
-        // Step 1: Grayscale
+        // Step A: Convert to Gray
         cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY);
         
-        // Step 2: Adaptive Threshold (This makes the ridges visible)
+        // Step B: Adaptive Threshold (This makes the ridges pop)
         cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY_INV, 11, 2);
         
-        // Step 3: Count Ridges
+        // Step C: Line Detection
         let lines = new cv.Mat();
-        cv.HoughLinesP(dst, lines, 1, Math.PI / 180, 20, 10, 5);
+        cv.HoughLinesP(dst, lines, 1, Math.PI / 180, 20, 15, 5);
         
+        // Update Count
         countResult.innerText = lines.rows;
-        cv.imshow('canvasOutput', dst); // Show AI view on top
-
-        // Cleanup
+        
+        // Show the processed result on canvas
+        cv.imshow(canvas, dst);
+        
+        status.innerText = "SCAN COMPLETE";
+        
+        // Cleanup memory
         src.delete(); dst.delete(); lines.delete();
-    } catch (e) {
-        console.error("OpenCV Error: ", e);
+    } catch (err) {
+        console.error(err);
+        status.innerText = "AI ERROR: TRY AGAIN";
     }
-}
+};
 
-function processLoop() {
-    if (mode === 'camera' && !video.paused) {
-        processFrame(video);
-        requestAnimationFrame(processLoop);
-    }
-}
+resetBtn.onclick = () => {
+    countResult.innerText = "0";
+    startCamera();
+};
