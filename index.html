@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI Ridge Scanner</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="loading-overlay">Loading OpenCV... Please wait.</div>
+    
+    <div class="container">
+        <h2>Ridge Counter</h2>
+        
+        <div class="viewport">
+            <img id="imageSrc" style="display:none;" />
+            <video id="video" autoplay playsinline muted></video>
+            <canvas id="canvasOutput"></canvas>
+            <div class="guide-box"></div>
+        </div>
+        
+        <div class="controls">
+            <input type="file" id="fileInput" accept="image/*" style="display:none;">
+            <button id="uploadBtn">Upload Image</button>
+            <button id="cameraBtn">Start Real-time</button>
+            <p class="result-text">Ridges: <span id="count-result">0</span></p>
+        </div>
+    </div>
+
+    <script async src="https://docs.opencv.org/4.5.4/opencv.js" type="text/javascript"></script>
+    <script src="app.js"></script>
+</body>
+</html>
