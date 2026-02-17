@@ -1,124 +1,63 @@
 :root {
     --primary-bg: #0f172a;
-    --card-bg: rgba(30, 41, 59, 0.7);
     --accent-blue: #38bdf8;
     --accent-green: #4ade80;
     --text-main: #f8fafc;
 }
 
-* {
-    box-sizing: border-box;
+body { 
+    margin: 0; font-family: 'Inter', sans-serif; background: var(--primary-bg); 
+    color: var(--text-main); height: 100dvh; display: flex; justify-content: center; overflow: hidden;
 }
 
-body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Inter', sans-serif;
-    background: var(--primary-bg);
-    color: var(--text-main);
-    /* Fix for mobile browser address bars */
-    height: 100dvh; 
-    display: flex;
-    justify-content: center;
+#loading-overlay {
+    position: fixed; inset: 0; background: #000; color: var(--accent-blue);
+    z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center;
 }
 
-.app-container {
-    width: 100%;
-    max-width: 450px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    padding: 15px;
-    /* Prevents the container from expanding beyond the screen */
-    overflow: hidden; 
+.app-container { width: 100%; max-width: 450px; height: 100%; display: flex; flex-direction: column; padding: 15px; }
+
+header h1 span { color: var(--accent-blue); }
+
+.viewport-container { flex: 1; display: flex; flex-direction: column; justify-content: center; position: relative; }
+
+.viewport { 
+    position: relative; width: 100%; aspect-ratio: 3/4; background: #000; 
+    border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); 
 }
 
-header {
-    flex-shrink: 0; /* Header won't shrink */
-    text-align: center;
-    padding-bottom: 10px;
+video, #workCanvas { width: 100%; height: 100%; object-fit: cover; }
+
+.scanner-overlay { 
+    position: absolute; inset: 0; display: flex; justify-content: center; 
+    align-items: center; pointer-events: none; z-index: 5;
 }
 
-/* --- The Viewport Area (The Fix) --- */
-.viewport-container {
-    flex-grow: 1; /* Takes up all available space */
-    min-height: 0; /* Crucial for flex scrolling/fitting */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    position: relative;
+.oval-cutout { 
+    width: 150px; height: 220px; border-radius: 100px; border: 2px solid var(--accent-blue); 
+    box-shadow: 0 0 0 1000px rgba(15, 23, 42, 0.85); position: relative;
 }
 
-.viewport {
-    position: relative;
-    width: 100%;
-    /* Instead of fixed aspect-ratio, we use max-height to keep buttons on screen */
-    max-height: 100%; 
-    aspect-ratio: 3/4;
-    margin: 0 auto;
-    background: #000;
-    border-radius: 20px;
-    overflow: hidden;
-    border: 1px solid rgba(255,255,255,0.1);
+.scan-line {
+    position: absolute; width: 100%; height: 2px; background: var(--accent-blue);
+    top: 0; animation: scan 2s linear infinite; opacity: 0.5;
 }
 
-video, #workCanvas {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+@keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
 
-/* --- The Controls Area (Always at Bottom) --- */
-.footer-controls {
-    flex-shrink: 0; /* Controls won't be pushed off screen */
-    padding-top: 15px;
-}
+.footer-controls { padding-top: 15px; z-index: 10; position: relative; }
 
 .counter-card {
-    background: var(--card-bg);
-    backdrop-filter: blur(10px);
-    padding: 12px;
-    border-radius: 12px;
-    margin-bottom: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); padding: 12px; 
+    border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; 
+    align-items: center; border: 1px solid rgba(255,255,255,0.1);
 }
 
-#count-result { font-size: 1.8rem; font-weight: 800; color: var(--accent-green); }
-
-.button-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-}
-
-.btn {
-    padding: 12px 5px;
-    font-size: 0.9rem;
-    border-radius: 10px;
-    font-weight: bold;
-    border: none;
-    color: white;
-}
-
+.button-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.btn { padding: 12px; border-radius: 10px; font-weight: bold; border: none; color: white; cursor: pointer; }
 .btn-blue { background: var(--accent-blue); }
+.btn-purple { background: #c084fc; }
 .btn-green { background: var(--accent-green); }
-
-/* --- Oval & Overlay --- */
-.scanner-overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    pointer-events: none;
-}
-
-.oval-cutout {
-    width: 140px; /* Reduced for better fit on small phones */
-    height: 200px;
-    border-radius: 100px;
-    border: 2px solid var(--accent-blue);
-    box-shadow: 0 0 0 1000px rgba(15, 23, 42, 0.8);
-}
+.btn-orange { background: #f59e0b; }
+.btn-red { background: transparent; color: #fb7185; border: 1px solid #fb7185; grid-column: span 2; margin-top: 5px; }
+.btn:disabled { opacity: 0.2; pointer-events: none; }
