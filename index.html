@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AI RidgeScan Pro</title>
+    <title>Forensic RidgeScan AI</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
-
     <div id="loading-overlay">
         <div class="spinner"></div>
         <p>INITIALIZING AI ENGINE...</p>
@@ -16,43 +15,33 @@
     
     <div class="app-container">
         <header>
-            <h1>RidgeScan<span>: v1.0</span></h1>
-            <p id="status">READY TO SCAN</p>
+            <h1>RidgeScan<span>PRO</span></h1>
+            <p id="status">READY</p>
         </header>
 
         <main class="viewport-container">
             <div class="viewport">
                 <video id="video" autoplay playsinline muted></video>
-                
                 <canvas id="workCanvas" style="display:none;"></canvas>
-                
-                <div class="scanner-overlay">
-                    <div class="oval-cutout">
-                        <div class="scan-line"></div>
-                    </div>
+                <div class="scanner-overlay" id="scannerOverlay">
+                    <div class="oval-cutout"><div class="scan-line"></div></div>
                 </div>
-            </div>
-            
-            <div id="zoom-container" class="glass-panel" style="display:none;">
-                <span>-</span>
-                <input type="range" id="zoom-slider" min="1" max="5" step="0.1" value="1">
-                <span>+</span>
             </div>
         </main>
 
         <footer class="footer-controls">
             <div class="counter-card">
-                <span class="label">RIDGES DETECTED</span>
+                <span class="label">RIDGE COUNT</span>
                 <span id="count-result">0</span>
             </div>
 
             <div class="button-grid">
                 <button id="captureBtn" class="btn btn-blue">Capture</button>
                 <button id="uploadBtn" class="btn btn-purple">Upload</button>
-                <button id="countBtn" class="btn btn-green" disabled>Start Count</button>
+                <button id="countBtn" class="btn btn-green" disabled>Confirm & Count</button>
+                <button id="downloadBtn" class="btn btn-orange" style="display:none;">Save Report</button>
                 <button id="resetBtn" class="btn btn-red">Reset</button>
             </div>
-            
             <input type="file" id="fileInput" accept="image/*" style="display:none;">
         </footer>
     </div>
@@ -61,6 +50,3 @@
     <script src="app.js"></script>
 </body>
 </html>
-
-
-
